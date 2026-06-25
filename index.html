@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countries Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <nav id="main-nav">
+    <div class="nav-brand">
+      <svg class="globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+      <span class="brand-name">Countries Catalog</span>
+    </div>
+    <div class="nav-controls">
+      <div class="view-toggle" role="tablist" aria-label="View mode">
+        <button id="btn-map-view" class="toggle-btn active" role="tab" aria-selected="true">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+          Map
+        </button>
+        <button id="btn-grid-view" class="toggle-btn" role="tab" aria-selected="false">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Grid
+        </button>
+      </div>
+      <select id="continent-filter" class="glass-select" aria-label="Filter by continent">
+        <option value="all">All Continents</option>
+        <option value="Africa">Africa</option>
+        <option value="Americas">Americas</option>
+        <option value="Asia">Asia</option>
+        <option value="Europe">Europe</option>
+        <option value="Oceania">Oceania</option>
+      </select>
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search-box" type="search" placeholder="Search countries..." class="glass-input" autocomplete="off">
+      </div>
+      <a href="quiz.html" class="btn-quiz">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01"/><circle cx="12" cy="12" r="10"/></svg>
+        Flag Quiz
+      </a>
+    </div>
+  </nav>
+
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading world data…</p>
+    </div>
+  </div>
+
+  <div id="error-banner" class="error-banner hidden">
+    <span id="error-message"></span>
+    <button id="btn-retry">Retry</button>
+  </div>
+
+  <!-- MAP VIEW -->
+  <section id="map-view" class="view active" aria-label="World map view">
+    <div id="map-container">
+      <svg id="world-map" aria-label="Interactive world map"></svg>
+      <div id="zoom-controls" aria-label="Map zoom controls">
+        <button id="zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+        <button id="zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+        <button id="zoom-reset" title="Reset view" aria-label="Reset zoom">⊙</button>
+      </div>
+      <div id="map-tooltip" class="map-tooltip hidden" role="tooltip" aria-live="polite">
+        <img id="tooltip-flag" src="" alt="" onerror="this.style.display='none'">
+        <span id="tooltip-name"></span>
+      </div>
+      <div id="map-hint" class="map-hint">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Click a country for details
+      </div>
+    </div>
+  </section>
+
+  <!-- GRID VIEW -->
+  <section id="grid-view" class="view hidden" aria-label="Country grid view">
+    <div id="grid-stats" class="grid-stats">
+      <span id="grid-count">0 countries</span>
+    </div>
+    <div id="grid-container" role="list" aria-label="Countries grid"></div>
+    <div id="no-results" class="no-results hidden">
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <p>No countries found</p>
+      <span>Try a different search or filter</span>
+    </div>
+  </section>
+
+  <!-- DETAIL SIDE PANEL -->
+  <aside id="detail-panel" class="detail-panel closed" aria-label="Country details" aria-hidden="true">
+    <div class="panel-backdrop" id="panel-backdrop" aria-hidden="true"></div>
+    <div class="panel-content glass-card" role="dialog" aria-modal="true">
+      <button id="panel-close" class="panel-close-btn" aria-label="Close details panel">✕</button>
+      <div id="panel-body" class="panel-body"></div>
+    </div>
+  </aside>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-geo-projection@4/dist/d3-geo-projection.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
